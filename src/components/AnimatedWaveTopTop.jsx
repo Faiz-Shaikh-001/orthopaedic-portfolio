@@ -1,0 +1,80 @@
+import { useRef } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(useGSAP, ScrollTrigger);
+
+const AnimatedWaveTopTop = () => {
+  const containerRef = useRef(null);
+  const maskRectRef = useRef(null);
+
+  useGSAP(
+    () => {
+      gsap.fromTo(
+        maskRectRef.current,
+        {
+            width: 0,
+        },
+        {
+            width: 1440,
+            duration: 2.5,
+            ease: "power3.inOut",
+            delay: 0.5,
+            scrollTrigger: {
+              trigger: containerRef.current,
+              start: `top 30%`,
+              markers: false,
+            },
+        }
+      );
+    },
+    { scope: containerRef }
+  );
+
+  return (
+    <div ref={containerRef} className="w-full relative overflow-hidden">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 1440 954"
+        preserveAspectRatio="none"
+        fill="none"
+        className="w-full h-auto"
+      >
+        <defs>
+          <linearGradient
+            id="simpleWaveGradient"
+            x1="0%"
+            y1="0%"
+            x2="100%"
+            y2="0%"
+          >
+            <stop offset="0%" stopColor="#48CDF2" />
+            <stop offset="50%" stopColor="#0F5B81" />
+            <stop offset="100%" stopColor="#48CDF2" />
+          </linearGradient>
+
+          <mask id="waveRevealMask">
+            <rect
+              ref={maskRectRef}
+              x="0"
+              y="0"
+              width="0"
+              height="100%"
+              fill="white"
+            />
+          </mask>
+        </defs>
+
+        <path
+          opacity="0.8"
+          fill="url(#simpleWaveGradient)"
+          mask="url(#waveRevealMask)"
+          d="M-124.45 953.266C-124.15 953.412 -123.85 953.557 -123.55 953.703C-104.728 922.704 -84.0288 892.516 -62.367 862.783C48.375 714.755 183.136 569.217 328.892 503.944C336.987 500.583 344.764 497.751 352.685 495.235C566.715 405.113 787.273 787.978 1135.39 618.89C1161.32 603.615 1183.53 586.099 1204.04 567.717C1336.76 441.764 1414.77 292.733 1487.57 141.755C1503.27 108.02 1518.3 73.9759 1532.32 38.9691C1503.44 25.9794 1474.56 12.9897 1445.68 -1.90735e-06C1429.83 30.282 1411.94 62.7375 1394.33 93.6405C1313.93 232.221 1227.77 374.156 1120.48 474.75C1104.53 489.084 1088.16 501.707 1072.08 511.175C877.064 647.656 659.17 294.649 316.037 383.07C304.242 387.003 292.881 391.528 281.38 396.854C86.3101 499.111 0.825287 683.547 -80.8492 851.958C-96.3253 885.779 -111.029 919.489 -124.45 953.266Z"
+        />
+      </svg>
+    </div>
+  );
+};
+
+export default AnimatedWaveTopTop;
