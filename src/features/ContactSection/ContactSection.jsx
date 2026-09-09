@@ -1,13 +1,23 @@
+import {
+  memo,
+  useRef,
+  useState,
+} from "react";
+
 import { Icon } from "@iconify/react";
-import { memo, useRef, useState } from "react";
+
 import useFadeInAnimation from "../../customHooks/FadeInAnimation";
+
 import FilledButton from "../../components/filledButton";
-import { HeartOutlinedIcon } from "../../assets/exportAssets";
+
+import {
+  HeartOutlinedIcon,
+} from "../../assets/exportAssets";
+
 import ContactSkeleton from "./ContactSkeleton";
 
-const ContactSection = ({ content }) => {
-  if (!content) return <ContactSkeleton />;
 
+const ContactContent = ({ content }) => {
   const {
     address,
     dummy_email,
@@ -18,105 +28,215 @@ const ContactSection = ({ content }) => {
     sub_heading,
   } = content;
 
-  const leftContainerRef = useRef();
-  const rightContainerRef = useRef();
-  const [status, setStatus] = useState("idle");
+  const leftContainerRef = useRef(null);
+  const rightContainerRef = useRef(null);
 
-  useFadeInAnimation(leftContainerRef, {
-    top: "70%",
-    direction: "x",
-    direction_val: -80,
-  });
-  useFadeInAnimation(rightContainerRef, {
-    top: "70%",
-    direction: "x",
-    direction_val: 80,
-  });
+  const [status, setStatus] =
+    useState("idle");
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+
+  useFadeInAnimation(
+    leftContainerRef,
+    {
+      top: "70%",
+      direction: "x",
+      direction_val: -80,
+    }
+  );
+
+
+  useFadeInAnimation(
+    rightContainerRef,
+    {
+      top: "70%",
+      direction: "x",
+      direction_val: 80,
+    }
+  );
+
+
+  const resetStatusLater = () => {
+    window.setTimeout(
+      () => setStatus("idle"),
+      3000
+    );
+  };
+
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
     setStatus("submitting");
 
-    const formData = new FormData(e.target);
+    const form = event.currentTarget;
 
-    formData.append("_replyto", userEmail);
+    const formData =
+      new FormData(form);
+
+    const userEmail =
+      formData.get("email");
+
+    if (userEmail) {
+      formData.set(
+        "_replyto",
+        userEmail
+      );
+    }
+
 
     try {
-      const response = await fetch(`https://formsubmit.co/ajax/${email}`, {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        `https://formsubmit.co/ajax/${email}`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
-      if (response.ok) {
-        setStatus("success");
-        e.target.reset();
-        // Reset button state after 3 seconds
-        setTimeout(() => setStatus("idle"), 3000);
-      } else {
-        setStatus("error");
-        setTimeout(() => setStatus("idle"), 3000);
+
+      if (!response.ok) {
+        throw new Error(
+          `Form submission failed with status ${response.status}`
+        );
       }
+
+
+      setStatus("success");
+
+      form.reset();
+
+      resetStatusLater();
+
     } catch (error) {
-      console.error("Error:", error);
+      console.error(
+        "Contact form submission failed:",
+        error
+      );
+
       setStatus("error");
+
+      resetStatusLater();
     }
   };
 
+
   return (
-    <section className="py-10" id="Contact">
+    <section
+      className="py-10"
+      id="Contact"
+    >
+
       <div className="grid lg:grid-cols-2 gap-7 mx-auto w-[90%] items-center">
-        {/* Left Content */}
+
+
         <div
           className="relative font-[battambang] text-xl"
           ref={leftContainerRef}
         >
+
           <HeartOutlinedIcon
             aria-hidden="true"
             className="absolute -z-1 bottom-full right-[90%] -rotate-25 h-20 fadeInAnim"
           />
+
           <HeartOutlinedIcon
             aria-hidden="true"
             className="absolute -z-1 top-full right-0 rotate-25 h-20 fadeInAnim"
           />
+
+
           <h2 className="font-bold text-3xl text-[#0E5B81] fadeInAnim">
             {heading}
           </h2>
-          <h3 className="text-5xl fadeInAnim">{sub_heading}</h3>
-          <p className=" fadeInAnim">{instruction}</p>
+
+
+          <h3 className="text-5xl fadeInAnim">
+            {sub_heading}
+          </h3>
+
+
+          <p className="fadeInAnim">
+            {instruction}
+          </p>
+
+
           <div className="mt-10 grid gap-5">
+
             <p className="flex items-start fadeInAnim">
-              <Icon icon="mdi:location" className="text-3xl" /> Address{" "}
-              {address}
+
+              <Icon
+                icon="mdi:location"
+                className="text-3xl"
+              />
+
+              Address {address}
+
             </p>
+
+
             <p className="flex items-center fadeInAnim">
-              <Icon icon="mdi-light:phone" /> Phone {phone}
+
+              <Icon icon="mdi-light:phone" />
+
+              Phone {phone}
+
             </p>
-            <p className="fadeInAnim">✉️ Email {dummy_email}</p>
+
+
+            <p className="fadeInAnim">
+              ✉️ Email {dummy_email}
+            </p>
+
           </div>
+
         </div>
 
-        {/* Right Form */}
-        <div className="w-[80%] mx-auto lg:mx-0" ref={rightContainerRef}>
+
+        <div
+          className="w-[80%] mx-auto lg:mx-0"
+          ref={rightContainerRef}
+        >
+
           <div className="shadow-2xl/40 relative bg-white rounded-2xl z-1 before:absolute before:w-full before:h-full before:rounded-2xl before:bg-white before:-z-5 after:absolute after:-z-10 after:w-full after:h-full after:border-4 after:border-[#48CEF3] after:inset-0 after:translate-6 after:rounded-2xl fadeInAnim after:fadeInAnim">
+
             <form
               onSubmit={handleSubmit}
               className="grid gap-3 rounded-2xl p-5 items-center justify-center font-[battambang] text-base"
             >
+
               <input
                 type="hidden"
                 name="_subject"
                 value="New Appointment Request - Dr. Ortho"
               />
+
               <input
                 type="hidden"
                 name="_autoresponse"
                 value="Thank you for contacting Dr. Nasir Hussain. We have received your appointment request."
               />
-              <input type="hidden" name="_captcha" value="true" />
-              <input type="hidden" name="_template" value="table" />
+
+              <input
+                type="hidden"
+                name="_captcha"
+                value="true"
+              />
+
+              <input
+                type="hidden"
+                name="_template"
+                value="table"
+              />
+
+
               <div className="grid grid-cols-2 gap-5 mx-auto">
-                <label htmlFor="name" className="grid w-full gap-1">
+
+                <label
+                  htmlFor="name"
+                  className="grid w-full gap-1"
+                >
                   Name
+
                   <input
                     type="text"
                     name="name"
@@ -125,9 +245,16 @@ const ContactSection = ({ content }) => {
                     required
                     className="text-sm rounded-full px-2 py-1 bg-[#5dc3df8c] inset-shadow-sm w-full"
                   />
+
                 </label>
-                <label htmlFor="phone" className="grid w-full gap-1">
+
+
+                <label
+                  htmlFor="phone"
+                  className="grid w-full gap-1"
+                >
                   Phone
+
                   <input
                     type="tel"
                     name="phone"
@@ -136,11 +263,18 @@ const ContactSection = ({ content }) => {
                     required
                     className="text-xm rounded-full px-2 py-1 bg-[#5dc3df8c] inset-shadow-sm w-full"
                   />
+
                 </label>
+
               </div>
 
-              <label htmlFor="email" className="grid mx-auto w-full gap-1">
+
+              <label
+                htmlFor="email"
+                className="grid mx-auto w-full gap-1"
+              >
                 Email
+
                 <input
                   type="email"
                   name="email"
@@ -149,10 +283,16 @@ const ContactSection = ({ content }) => {
                   required
                   className="text-xm rounded-full px-2 py-1 bg-[#5dc3df8c] inset-shadow-sm w-full"
                 />
+
               </label>
 
-              <label htmlFor="subject" className="grid mx-auto w-full gap-1">
+
+              <label
+                htmlFor="subject"
+                className="grid mx-auto w-full gap-1"
+              >
                 Subject
+
                 <input
                   type="text"
                   name="subject"
@@ -161,10 +301,16 @@ const ContactSection = ({ content }) => {
                   required
                   className="text-xm rounded-full px-2 py-1 bg-[#5dc3df8c] inset-shadow-sm w-full"
                 />
+
               </label>
 
-              <label htmlFor="message" className="grid mx-auto w-full gap-1">
+
+              <label
+                htmlFor="message"
+                className="grid mx-auto w-full gap-1"
+              >
                 Message
+
                 <textarea
                   name="message"
                   placeholder="Describe your issue..."
@@ -173,37 +319,68 @@ const ContactSection = ({ content }) => {
                   required
                   className="text-xm rounded-2xl px-2 py-1 bg-[#5dc3df8c] inset-shadow-sm w-full"
                 />
+
               </label>
+
 
               <input
                 type="text"
                 name="_honey"
-                style={{ display: "none" }}
-              ></input>
-              <input type="hidden" name="_captcha" value="true" />
+                style={{
+                  display: "none",
+                }}
+                tabIndex="-1"
+                autoComplete="off"
+              />
+
 
               <div className="w-full flex justify-center mt-2">
+
                 <FilledButton
                   text={
                     status === "submitting"
                       ? "Sending..."
                       : status === "success"
-                      ? "Message Sent! ✅"
-                      : status === "error"
-                      ? "Failed. Try Again ❌"
-                      : "Submit Request"
+                        ? "Message Sent! ✅"
+                        : status === "error"
+                          ? "Failed. Try Again ❌"
+                          : "Submit Request"
                   }
-                  displayArrow={status === "idle"}
+                  displayArrow={
+                    status === "idle"
+                  }
                   type="submit"
-                  disabled={status === "submitting"}
+                  disabled={
+                    status === "submitting"
+                  }
                 />
+
               </div>
+
             </form>
+
           </div>
+
         </div>
+
       </div>
+
     </section>
   );
 };
+
+
+const ContactSection = ({ content }) => {
+  if (!content) {
+    return <ContactSkeleton />;
+  }
+
+  return (
+    <ContactContent
+      content={content}
+    />
+  );
+};
+
 
 export default memo(ContactSection);

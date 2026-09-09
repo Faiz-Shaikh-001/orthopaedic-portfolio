@@ -1,16 +1,24 @@
-import { memo, useRef } from "react";
+import {
+  memo,
+  useRef,
+} from "react";
+
 import {
   HeroBGURL,
   KneeCrescentIcon,
   KneeHexIcon,
   KneePlusIcon,
 } from "../../assets/exportAssets.js";
+
 import FilledButton from "../../components/filledButton.jsx";
 import OutlinedButton from "../../components/outlinedButton.jsx";
+
 import useBackgroundIconAnimation from "../../customHooks/BackgroundIconAnimation.jsx";
 import useTypewriterEffectAnimation from "../../customHooks/TypewriterEffectAnimation.jsx";
 import useNumberIncrementAnimation from "../../customHooks/NumberIncrementAnimation.jsx";
+
 import HeroSkeleton from "./HeroSkeleton.jsx";
+
 
 const ICON_CONFIG = [
   {
@@ -75,104 +83,194 @@ const ICON_CONFIG = [
   },
 ];
 
-const HeroSection = ({ content }) => {
-  if (!content) return <HeroSkeleton icons={ICON_CONFIG} />;
 
-  const { title, subtext, stats } = content;
+const HeroContent = ({ content }) => {
+  const {
+    title,
+    subtext = "",
+    stats = {},
+  } = content;
 
-  const iconContainerRef = useRef();
-  const textRef = useRef();
-  const cursorRef = useRef();
-  const statsContainerRef = useRef();
+  const iconContainerRef =
+    useRef(null);
 
-  useBackgroundIconAnimation(iconContainerRef);
-  useTypewriterEffectAnimation(subtext, cursorRef, textRef);
-  useNumberIncrementAnimation(statsContainerRef);
+  const textRef =
+    useRef(null);
+
+  const cursorRef =
+    useRef(null);
+
+  const statsContainerRef =
+    useRef(null);
+
+
+  useBackgroundIconAnimation(
+    iconContainerRef
+  );
+
+  useTypewriterEffectAnimation(
+    subtext,
+    cursorRef,
+    textRef
+  );
+
+  useNumberIncrementAnimation(
+    statsContainerRef
+  );
+
 
   return (
-    <section id="Home" className="relative w-full pt-20 pb-28">
+    <section
+      id="Home"
+      className="relative w-full pt-20 pb-28"
+    >
+
       <img
         src={HeroBGURL}
         className="w-full absolute inset-0 -z-20 h-[140%]"
-        alt="Hero Background"
+        alt=""
         fetchPriority="high"
         loading="eager"
       />
+
+
       <div
         className="absolute inset-0 -z-15 mix-blend-multiply"
         ref={iconContainerRef}
       >
-        {ICON_CONFIG.map((Icon, idx) => {
-          return (
-            <Icon.component
-              key={idx}
-              aria-hidden="true"
-              className={`absolute ${Icon.size} ${Icon.style} ${Icon.anim}`}
-            />
-          );
-        })}
+
+        {ICON_CONFIG.map(
+          (iconConfig, index) => {
+            const IconComponent =
+              iconConfig.component;
+
+            return (
+              <IconComponent
+                key={index}
+                aria-hidden="true"
+                className={`absolute ${iconConfig.size} ${iconConfig.style} ${iconConfig.anim}`}
+              />
+            );
+          }
+        )}
+
       </div>
 
-      {/* Foreground Content */}
-      <div className="grid justify-center max-w-10/12  xl:max-w-4xl text-center gap-y-7 mx-auto text-white">
+
+      <div className="grid justify-center max-w-10/12 xl:max-w-4xl text-center gap-y-7 mx-auto text-white">
+
         <h1 className="text-center font-[battambang] text-5xl font-black">
           {title}
         </h1>
+
+
         <h3 className="font-[battambang] font-bold text-xl leading-7 xl:leading-10 min-h-20">
-          <span className="typewriter-text" ref={textRef}></span>
+
+          <span
+            className="typewriter-text"
+            ref={textRef}
+          />
+
           <span
             className="typewriter-cursor inline-block text-2xl font-thin"
             ref={cursorRef}
           >
             |
           </span>
+
         </h3>
 
-        {/* button row */}
-        <div
-          className="grid xl:grid-flow-col xl:grid-cols-12 justify-center gap-6 z-5
-          "
-        >
+
+        <div className="grid xl:grid-flow-col xl:grid-cols-12 justify-center gap-6 z-5">
+
           <FilledButton
             colSpan="xl:col-start-2 xl:col-span-6"
-            text={"Book Appointment"}
-            scrollToId={"#Contact"}
+            text="Book Appointment"
+            scrollToId="#Contact"
           />
+
           <OutlinedButton
-            text={"View Services"}
-            colSpan={"xl:col-span-4"}
-            scrollToId={"#Services"}
+            text="View Services"
+            colSpan="xl:col-span-4"
+            scrollToId="#Services"
           />
+
         </div>
 
-        {/* stats */}
+
         <div
-          className="grid grid-cols-2 lg:grid-cols-3 mx-auto  justify-center gap-12 font-bold font-[battambang] text-4xl flex-col xl:flex-row"
+          className="grid grid-cols-2 lg:grid-cols-3 mx-auto justify-center gap-12 font-bold font-[battambang] text-4xl flex-col xl:flex-row"
           ref={statsContainerRef}
         >
-          <StatItem value={stats.exp} label="Years Experience" suffix="+" />
-          <StatItem value={stats.patients} label="Happy Patients" />
+
           <StatItem
-            value={stats.surgeries}
+            value={stats.exp ?? 0}
+            label="Years Experience"
+            suffix="+"
+          />
+
+          <StatItem
+            value={stats.patients ?? 0}
+            label="Happy Patients"
+          />
+
+          <StatItem
+            value={stats.surgeries ?? 0}
             label="Surgeries"
             className="col-span-2 lg:col-span-1"
           />
+
         </div>
+
       </div>
+
     </section>
   );
 };
 
-const StatItem = ({ value, label, suffix = "", className = "" }) => (
+
+const StatItem = ({
+  value,
+  label,
+  suffix = "",
+  className = "",
+}) => (
   <h2 className={`grid ${className}`}>
+
     <span>
-      <span className="data" data-target={value}>
-        {0}
+      <span
+        className="data"
+        data-target={value}
+      >
+        0
       </span>
+
       {suffix}
     </span>
-    <span className="text-sm">{label}</span>
+
+    <span className="text-sm">
+      {label}
+    </span>
+
   </h2>
 );
+
+
+const HeroSection = ({ content }) => {
+  if (!content) {
+    return (
+      <HeroSkeleton
+        icons={ICON_CONFIG}
+      />
+    );
+  }
+
+  return (
+    <HeroContent
+      content={content}
+    />
+  );
+};
+
 
 export default memo(HeroSection);
